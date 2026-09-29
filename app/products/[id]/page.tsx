@@ -3,47 +3,41 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import api from "@/lib/api"
 import { ProductType } from "@/types/product"
+import {useDispatch, useSelector} from 'react-redux'
+import { AppDispatch} from '@/redux/store'
+import { getproduct } from "@/redux/slices/productSlice"
 
 
 export default function ProductPage() {
   const params = useParams()
+  const dispatch = useDispatch<AppDispatch>()
+
+  const { selectedproduct, loading, error } = useSelector(
+  (state: any) => state.products
+)
+
+
 
     // Get product id from URL
   const id =params.id as string
-
- //store one product
-  const [product,setProduct]=useState<ProductType | null>(null)
-
-  //loading state
-  const [loading,setLoading]=useState(true)
-
-  //get one product from the backend
-  const getproduct = async()=>{
-    try{
-    const token =localStorage.getItem("token")
-     const response = await api.get(`/products/${id}`,{
-     headers: {
-          Authorization: `Bearer ${token}`,
-     },
-     })
-     console.log("ONE PRODUCT:", response.data)
-     setProduct(response.data.data)
-
-    } catch (error: any) {
-    console.log("PRODUCT ERROR:", error)
-    console.log("SERVER ERROR:", error.response?.data)
-   } 
-   finally {
-   setLoading(false)
-    }
-  }
+ 
 
     //run when page loads
     useEffect(()=>{
-      getproduct()
-    },[id])
+     const token=localStorage.getItem("token")
+     if(!token){
+      alert("not token found")
+      return
+     }
+
+     dispatch(
+      getproduct({
+        id,token
+      })
+     )
+
+    },[id,dispatch])
 
       // Show loading message
   if (loading) {
@@ -56,7 +50,7 @@ export default function ProductPage() {
     )
   }
     // Product not found
-  if (!product) {
+  if (!selectedproduct) {
     return (
       <div className="min-h-screen bg-[#F5EDE3] flex flex-col items-center justify-center">
         <h1 className="text-3xl font-bold text-[#3E3025]">
@@ -73,11 +67,11 @@ export default function ProductPage() {
     )
   }
     // Create image URL
-  const imageUrl = product.image
+  const imageUrl = selectedproduct.image
     ? `${process.env.NEXT_PUBLIC_BACKEND_URL?.replace(
         "/api",
         ""
-      )}/${product.image.replaceAll("\\", "/")}`
+      )}/${selectedproduct.image.replaceAll("\\", "/")}`
     : "/logo.png.jpg"
 
   
@@ -106,7 +100,7 @@ export default function ProductPage() {
 
               <img
                 src={imageUrl}
-                alt={product.title}
+                alt={selectedproduct.title}
                 className="w-full h-96 object-cover rounded-xl"
               />
 
@@ -117,22 +111,22 @@ export default function ProductPage() {
 
               {/* Category */}
               <p className="text-sm text-[#8B6F47] font-medium">
-                {product.cateogary}
+                {selectedproduct.cateogary}
               </p>
 
               {/* Title */}
               <h1 className="text-4xl font-bold text-[#3E3025] mt-2">
-                {product.title}
+                {selectedproduct.title}
               </h1>
 
               {/* Price */}
               <p className="text-3xl font-bold text-[#6B4F3A] mt-5">
-                ₹{product.price}
+                ₹{selectedproduct.price}
               </p>
 
               {/* Description */}
               <p className="text-gray-600 mt-6 leading-7">
-                {product.description}
+                {selectedproduct.description}
               </p>
 
               {/* Buy button */}

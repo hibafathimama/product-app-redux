@@ -5,7 +5,9 @@ import { useForm } from "react-hook-form"
 import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { useRouter } from "next/navigation"
-import api from "@/lib/api"
+import { useDispatch } from "react-redux"
+import { AppDispatch } from "@/redux/store"
+import { addproduct } from "@/redux/slices/productSlice"
 
 const schema = yup.object({
   title: yup.string().required("Title is required"),
@@ -28,6 +30,8 @@ type ProductForm = yup.InferType<typeof schema>
 
 export default function AddProductPage() {
   const router = useRouter()
+  const dispatch = useDispatch<AppDispatch>()
+
 
   const {
     register,
@@ -51,31 +55,36 @@ export default function AddProductPage() {
       }
 
       const token = localStorage.getItem("token")
+      if (!token) {
+      alert("No token found")
+      return
+    }
 
-      const response = await api.post(
-        "/products/addproduct",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
 
-      console.log("ADD PRODUCT RESPONSE:", response.data)
+        await dispatch(
+        addproduct({
+          formData,
+          token,
+        })
+      ).unwrap()
+
+  
 
       alert("Product added successfully")
 
       router.push("/products")
-    } catch (error: any) {
-      console.log("ADD PRODUCT ERROR:", error)
-      console.log("SERVER RESPONSE:", error.response?.data)
+    }  catch (error: any) {
+  console.log("ADD PRODUCT ERROR:", error)
+  console.log("STATUS:", error?.response?.status)
+  console.log("SERVER RESPONSE:", error?.response?.data)
+  console.log("MESSAGE:", error?.message)
 
-      alert(
-        error.response?.data?.message ||
-        "Failed to add product"
-      )
-    }
+  alert(
+    error?.response?.data?.message ||
+    error?.message ||
+    "Failed to add product"
+  )
+}
   }
 
   return (

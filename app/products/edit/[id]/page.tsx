@@ -5,6 +5,9 @@ import { useParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { useDispatch } from "react-redux"
+import { AppDispatch } from "@/redux/store"
+import { updateproduct } from "@/redux/slices/productSlice"
 
 //validation schema
 const schema = yup.object({
@@ -65,6 +68,7 @@ export default function Editproductpage(){
 
     //used for navigation 
     const router =useRouter();
+    const dispatch = useDispatch<AppDispatch>()
 
     //loading state 
     const[loading,setLoading]=useState(true)
@@ -148,25 +152,18 @@ const onSubmit = async (data: FormData) => {
     }
 
     // Send update request
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/products/${id}`,
-      {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
+      if (!token) {
+        alert("No token found")
+        return
       }
-    );
 
-    const result = await response.json();
-
-    console.log("UPDATE RESPONSE:", result);
-
-    if (!response.ok) {
-      alert(result.message || "Update failed");
-      return;
-    }
+      await dispatch(
+        updateproduct({
+          id,
+          formData,
+          token,
+        })
+      ).unwrap()
 
     alert("Product updated successfully");
 

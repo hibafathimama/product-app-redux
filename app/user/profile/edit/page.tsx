@@ -6,18 +6,11 @@ import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
 import Link from "next/link"
-
-
+import { useDispatch, useSelector } from "react-redux"
+import { AppDispatch, RootState } from "@/redux/store"
+import { getuser,updateuser } from "@/redux/slices/userSlice"
 import Header from "@/components/Header"
-import api from "@/lib/api"
 
-interface UserType {
-  firstName: string
-  lastName: string
-  email: string
-  role: string
-  image?: string
-}
 
 const schema = yup.object({
   firstName: yup
@@ -40,9 +33,12 @@ type UpdateForm = yup.InferType<typeof schema>
 
 export default function UpdateProfilePage(){
     const router=useRouter()
+    const dispatch = useDispatch<AppDispatch>()
 
-  const [user, setUser] = useState<UserType | null>(null)
-  const [loading, setLoading] = useState(true)
+const { user, loading, error } = useSelector(
+  (state: RootState) => state.user
+)
+
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [serverError, setServerError] = useState("")
@@ -57,54 +53,86 @@ export default function UpdateProfilePage(){
   })
 
   //get current user
-  const getUser =async()=>{
-    try{
-        const token = localStorage.getItem("token")
+  // const getUser =async()=>{
+  //   try{
+  //       const token = localStorage.getItem("token")
 
-        if(!token){
-            router.push("/login")
-            return
-        }
-         const response = await api.get("/users/getoneuser", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+  //       if(!token){
+  //           router.push("/login")
+  //           return
+  //       }
+  //        const response = await api.get("/users/getoneuser", {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     })
+  //     const userData = response.data.data
+
+  //     setUser(userData)
+
+  //     reset({
+  //       firstName: userData.firstName,
+  //       lastName: userData.lastName,
+  //       email: userData.email,
+  //     })
+  //        // Existing profile image
+  //     if (userData.image) {
+  //       const backendUrl =
+  //         process.env.NEXT_PUBLIC_BACKEND_URL?.replace("/api", "")
+
+  //       const imageUrl = `${backendUrl}/${userData.image.replaceAll(
+  //         "\\",
+  //         "/"
+  //       )}`
+  //               setImagePreview(imageUrl)
+  //   }
+  //   }catch(error:any){
+  //       console.log("GET USER ERROR:", error)
+  //     console.log("SERVER RESPONSE:", error.response?.data)
+
+  //     setServerError(
+  //       error.response?.data?.message || "Failed to load profile"
+  //     )
+  //   }
+  //   finally{
+  //       setLoading(false);
+  //   }
+  // }
+  useEffect(()=>{
+
+    const token=localStorage.getItem("token")
+     if (!token){
+      router.push("/login")
+      return
+     }
+
+     dispatch(
+      getuser({
+        token,
       })
-      const userData = response.data.data
+     )
+  },[dispatch,router])
 
-      setUser(userData)
-
-      reset({
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        email: userData.email,
-      })
-         // Existing profile image
-      if (userData.image) {
+  useEffect(() => {
+  if (user) {
+    reset({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+    })
+        // Existing profile image
+      if (user.image) {
         const backendUrl =
           process.env.NEXT_PUBLIC_BACKEND_URL?.replace("/api", "")
 
-        const imageUrl = `${backendUrl}/${userData.image.replaceAll(
+        const imageUrl = `${backendUrl}/${user.image.replaceAll(
           "\\",
           "/"
         )}`
                 setImagePreview(imageUrl)
     }
-    }catch(error:any){
-        console.log("GET USER ERROR:", error)
-      console.log("SERVER RESPONSE:", error.response?.data)
-
-      setServerError(
-        error.response?.data?.message || "Failed to load profile"
-      )
-    }
-    finally{
-        setLoading(false);
-    }
   }
-  useEffect(()=>{
-    getUser()
-  },[])
+}, [user, reset])
 
     // Image selection
   const handleImageChange = (
@@ -161,35 +189,16 @@ export default function UpdateProfilePage(){
       if (selectedImage) {
         formData.append("image", selectedImage)
       }
-            const response = await api.put(
-        "/users/updateuser",
+      await dispatch(
+      updateuser({
         formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+        token,
+      })
+    ).unwrap()
 
-      console.log("UPDATE RESPONSE:", response.data)
+    alert("Profile updated successfully")
 
-      // Update localStorage user information
-      const oldUser = JSON.parse(
-        localStorage.getItem("user") || "{}"
-      )
-const updatedUser = {
-        ...oldUser,
-        ...response.data.data,
-      }
-
-      localStorage.setItem(
-        "user",
-        JSON.stringify(updatedUser)
-      )
-
-      alert("Profile updated successfully")
-
-      router.push("/user/profile/view")
+    router.push("/user/profile/view")
 
     }catch(error:any){
               console.log("UPDATE USER ERROR:", error)

@@ -1,53 +1,64 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Header from "@/components/Header"
-import api from "@/lib/api"
 import Link from "next/link"
+import { useDispatch,useSelector } from "react-redux"
+import { AppDispatch, RootState } from "@/redux/store"
+import { getuser } from "@/redux/slices/userSlice"
 
 
-interface UserType {
-  firstName: string
-  lastName: string
-  email: string
-  role: string
-  image: string
-}
 
 export default function ViewProfilePage() {
-  const [user, setUser] = useState<UserType | null>(null)
-  const [loading, setLoading] = useState(true)
 
   const router = useRouter()
 
-  const getUser =async()=>{
-    try{
-        const token = localStorage.getItem("token");
 
-        if(!token){
-            router.push("/login")
-            return
-        }
-        const response = await api.get("/users/getoneuser",{
-            headers:{
-                Authorization :`Bearer ${token}`,
-            },
-        })
-              console.log("USER RESPONSE:", response.data)
-              setUser(response.data.data)
-    }
-    catch(error:any){
-        console.log("USER ERROR:", error)
-      console.log("SERVER RESPONSE:", error.response?.data)
-    }
-    finally{
-        setLoading(false)
-    }
-  }
+//redux
+const dispatch=useDispatch<AppDispatch>()
+const { user, loading, error } = useSelector(
+  (state: RootState) => state.user
+)
+
+
+  // const getUser =async()=>{
+  //   try{
+  //       const token = localStorage.getItem("token");
+
+  //       if(!token){
+  //           router.push("/login")
+  //           return
+  //       }
+  //       const response = await api.get("/users/getoneuser",{
+  //           headers:{
+  //               Authorization :`Bearer ${token}`,
+  //           },
+  //       })
+  //             console.log("USER RESPONSE:", response.data)
+  //             setUser(response.data.data)
+  //   }
+  //   catch(error:any){
+  //       console.log("USER ERROR:", error)
+  //     console.log("SERVER RESPONSE:", error.response?.data)
+  //   }
+  //   finally{
+  //       setLoading(false)
+  //   }
+  // }
   useEffect(()=>{
-    getUser()
-  },[])
+    const token=localStorage.getItem('token')
+    if(!token){
+      router.push("/login")
+      return
+    }
+
+    dispatch(
+      getuser({
+        token,
+      })
+    )
+  },[dispatch,router])
 
     // Loading
   if (loading) {

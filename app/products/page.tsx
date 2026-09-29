@@ -6,44 +6,54 @@ import Link from "next/link"
 import Header from "@/components/Header"
 import ProductCard from "@/components/Productcard"
 import { ProductType } from "@/types/product"
-import api from "@/lib/api"
+import {useDispatch, useSelector} from 'react-redux'
+import { AppDispatch} from '@/redux/store'
+import { deleteproduct, listProduct } from "@/redux/slices/productSlice"
+
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<ProductType[]>([])
-  const [loading, setLoading] = useState(true)
   const [role, setRole] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
-  const [total, setTotal] = useState(0)
+
+    const dispatch = useDispatch<AppDispatch>()
+    const{products,total,loading,error}=useSelector((state:any)=>state.products)
+
 
   const limit = 8
   const skip = (currentPage - 1) * limit
   const totalPages = Math.ceil(total / limit)
 
 
-  const getProducts = async () => {
-    try {
-      const token = localStorage.getItem("token")
+//   const getProducts = async () => {
+//     try {
+//       const storedToken = localStorage.getItem("token")
 
-      const response = await api.get(
-  `/products/listallproduct?limit=${limit}&skip=${skip}`,
-  {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
-)
+//       //get user info from local storage
+//       const storedUser=localStorage.getItem('user');
+//       const user=storedUser?JSON.parse(storedUser):null;
 
-      console.log("PRODUCT RESPONSE:", response.data)
+      
 
-      setProducts(response.data.data || [])
-      setTotal(response.data.total || 0)
-    } catch (error: any) {
-      console.log("PRODUCT ERROR:", error)
-      console.log("SERVER RESPONSE:", error.response?.data)
-    } finally {
-      setLoading(false)
-    }
-  }
+// //       const response = await api.get(
+// //   `/products/listallproduct?limit=${limit}&skip=${skip}`,
+// //   {
+// //     headers: {
+// //       Authorization: `Bearer ${token}`,
+// //     },
+// //   }
+// // )
+
+//       console.log("PRODUCT RESPONSE:", response.data)
+
+//       setProducts(response.data.data || [])
+//       setTotal(response.data.total || 0)
+//     } catch (error: any) {
+//       console.log("PRODUCT ERROR:", error)
+//       console.log("SERVER RESPONSE:", error.response?.data)
+//     } finally {
+//       setLoading(false)
+//     }
+//   }
 
   const handleDelete = async (id: string) => {
   const confirmDelete = window.confirm(
@@ -56,17 +66,28 @@ export default function ProductsPage() {
 
   try {
     const token = localStorage.getItem("token")
+    if(!token){
+      alert("no token found")
+      return
+    }
 
-    await api.delete(`/products/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    await dispatch(
+      deleteproduct({
+        id,
+        token,
+      })
+    ).unwrap()
 
     alert("Product deleted successfully")
 
     // Get updated product list
-    getProducts()
+       dispatch(
+      listProduct({
+        limit,
+        skip,
+        token: token || "",
+      })
+    )
 
   } catch (error: any) {
     console.log("DELETE ERROR:", error)
@@ -79,12 +100,24 @@ export default function ProductsPage() {
   }
 }
   useEffect(() => {
-  const user = JSON.parse(localStorage.getItem("user") || "null")
+    const storedUser=localStorage.getItem("user")
+  const user = storedUser?JSON.parse(storedUser):null
 
   setRole(user?.role || "")
 
-  getProducts()
-}, [currentPage])
+  const storedToken=localStorage.getItem("token")
+
+  if(storedToken){
+    dispatch(
+      listProduct({
+      limit,
+      skip,
+      token:storedToken
+    })
+  )
+  }
+
+}, [dispatch,currentPage])
 
   return (
 <div className="min-h-screen bg-[#E8D5B5]">
@@ -129,7 +162,7 @@ export default function ProductsPage() {
         {!loading && products.length > 0 && (
           <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 
-            {products.map((product) => (
+            {products.map((product:ProductType) => (
               <ProductCard
                 key={product._id}
                 product={product}
