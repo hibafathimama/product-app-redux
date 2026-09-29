@@ -1,178 +1,205 @@
+
 "use client"
 
 import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { useForm } from "react-hook-form"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import api from "@/lib/api"
 
+const loginschema = yup.object({
+  email: yup
+    .string()
+    .email("Enter a valid email")
+    .required("Email is required"),
 
-
-
-const loginschema= yup.object({
-    email:yup.string().email("Enter a valid email").required("email is required"),
-    password:yup.string().required("password is required")
+  password: yup
+    .string()
+    .required("Password is required"),
 })
 
-type LoginForm=yup.InferType<typeof loginschema>
+type LoginForm = yup.InferType<typeof loginschema>
+
 export default function LoginPage() {
 
-        const router = useRouter()
-        const {
-            register,
-            handleSubmit,
-            formState:{errors},
-        }=useForm<LoginForm>({
-            resolver:yupResolver(loginschema),
-        })
-    
- const onsubmit = async(data :LoginForm)=>{
-    try{
-        const response = await api.post("/users/login",data)
+  const router = useRouter()
 
-        const token = response.data.accestoken
-        const role = response.data.data.role
-
-        localStorage.setItem(
-          "user",
-          JSON.stringify(response.data.data)
-        )
-
-        localStorage.setItem("token", token)
-
-        await fetch("/api/auth/set-cookie", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            token: token,
-            role: role,
-          }),
-        })
-
-        router.push("/products")
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginForm>({
+    resolver: yupResolver(loginschema),
+  })
 
 
+  const onsubmit = async (data: LoginForm) => {
+
+    try {
+
+      const response = await api.post("/users/login", data)
+
+      const token = response.data.accestoken
+      const role = response.data.data.role
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(response.data.data)
+      )
+
+      localStorage.setItem("token", token)
+
+      await fetch("/api/auth/set-cookie", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          token: token,
+          role: role,
+        }),
+      })
+
+      router.push("/products")
+
+    } catch (error: any) {
+
+      console.log("LOGIN ERROR:", error)
+      console.log("SERVER RESPONSE:", error.response?.data)
+
+      alert(
+        error.response?.data?.message ||
+        "Invalid email or password"
+      )
     }
-    catch(error:any){
-        console.log("LOGIN ERROR:", error)
-        console.log("SERVER RESPONSE:", error.response?.data)
-        alert(
-        error.response?.data?.message || "Invalid email or password"
-        )
-    }
- }
+  }
 
- return (
-  <div className="min-h-screen bg-[#E8D5B5] from-blue-50 via-white to-purple-50 flex items-center justify-center px-4">
 
-    <div className="w-full max-w-md">
+  return (
+    <main className="min-h-screen bg-[#F7FAF8] flex items-center justify-center px-4 py-10 relative overflow-hidden">
 
-    
+      {/* Minimal Background Decoration */}
+      <div className="absolute -top-32 -right-32 w-72 h-72 bg-[#DDEDE4] rounded-full opacity-70"></div>
 
-      {/* Login Card */}
-      <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+      <div className="absolute -bottom-32 -left-32 w-72 h-72 bg-[#E8F2EC] rounded-full opacity-70"></div>
 
-        <div className="mb-7">
-          <h2 className="text-2xl font-bold text-gray-900 text-center ">
-            Welcome Back !
-          </h2>
 
-          <p className="text-gray-500 mt-1 text-1g font-bold text-center">
-  Login to you account
-</p>
-        </div>
+      {/* Login Container */}
+      <div className="relative w-full max-w-md">
 
-        <form
-          onSubmit={handleSubmit(onsubmit)}
-          className="space-y-5"
-        >
 
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              
-            </label>
+        {/* Login Card */}
+        <div className="bg-white rounded-2xl border border-[#E0EAE4] shadow-[0_10px_40px_rgba(47,107,79,0.08)] p-7 md:p-9">
 
-            <input
-              type="email"
-              placeholder="Enter your email"
-              {...register("email")}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50 text-gray-900 outline-none transition focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-            />
 
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-2">
-                {errors.email.message}
-              </p>
-            )}
+          {/* Heading */}
+          <div className="mb-8 text-center">
+
+            <h1 className="text-3xl font-semibold text-[#1F2A24]">
+              Welcome Back
+            </h1>
+
+            <p className="mt-2 text-sm text-[#68736D]">
+              Sign in to continue to your account
+            </p>
+
           </div>
 
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              
-            </label>
 
-            <input
-              type="password"
-              placeholder="Enter your password"
-              {...register("password")}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50 text-gray-900 outline-none transition focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-            />
-
-            {errors.password && (
-              <p className="text-red-500 text-sm mt-2">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
-
-          {/* Login Button */}
-          <button
-            type="submit"
-            className="w-full bg-[#6B4F3A]   text-white py-3 rounded-xl font-semibold hover:bg-[#6B4F3A]   active:scale-[0.98] transition duration-200 shadow-md"
+          {/* Form */}
+          <form
+            onSubmit={handleSubmit(onsubmit)}
+            className="space-y-5"
           >
-            Login
-          </button>
 
-        </form>
 
-        {/* Register */}
-        <div className="text-center mt-7 pt-6 border-t border-gray-100">
-          <p className="text-sm text-gray-500">
-            Don't have an account?{" "}
+            {/* Email */}
+            <div>
 
-            <a
-              href="/registration"
-              className="text-[#6B4F3A]   font-semibold hover:text-[#6B4F3A]   hover:underline"
+              <label className="block text-sm font-medium text-[#34443B] mb-2">
+                Email address
+              </label>
+
+              <input
+                type="email"
+                placeholder="Enter your email"
+                {...register("email")}
+                className="w-full h-12 px-4 rounded-lg border border-[#D5E1DA] bg-[#FBFCFB] text-[#1F2A24] placeholder-[#9AA9A1] outline-none transition focus:border-[#2F6B4F] focus:ring-4 focus:ring-[#E8F2EC]"
+              />
+
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-2">
+                  {errors.email.message}
+                </p>
+              )}
+
+            </div>
+
+
+            {/* Password */}
+            <div>
+
+              <label className="block text-sm font-medium text-[#34443B] mb-2">
+                Password
+              </label>
+
+              <input
+                type="password"
+                placeholder="Enter your password"
+                {...register("password")}
+                className="w-full h-12 px-4 rounded-lg border border-[#D5E1DA] bg-[#FBFCFB] text-[#1F2A24] placeholder-[#9AA9A1] outline-none transition focus:border-[#2F6B4F] focus:ring-4 focus:ring-[#E8F2EC]"
+              />
+
+              {errors.password && (
+                <p className="text-red-500 text-xs mt-2">
+                  {errors.password.message}
+                </p>
+              )}
+
+            </div>
+
+
+            {/* Login Button */}
+            <button
+              type="submit"
+              className="w-full h-12 bg-[#2F6B4F] text-white rounded-lg font-medium hover:bg-[#24553E] active:scale-[0.99] transition duration-200 shadow-sm"
             >
-              Create an account
-            </a>
-          </p>
+              Sign In
+            </button>
+
+          </form>
+
+
+          {/* Register */}
+          <div className="mt-7 pt-6 border-t border-[#E8EFEA] text-center">
+
+            <p className="text-sm text-[#68736D]">
+
+              Don't have an account?{" "}
+
+              <Link
+                href="/registration"
+                className="text-[#2F6B4F] font-medium hover:text-[#24553E] hover:underline"
+              >
+                Create an account
+              </Link>
+
+            </p>
+
+          </div>
+
         </div>
+
+
+        {/* Footer */}
+        <p className="text-center text-xs text-[#9AA9A1] mt-6">
+          © 2026 Product App
+        </p>
 
       </div>
 
-      {/* Footer */}
-      <p className="text-center text-xs text-gray-400 mt-6">
-        © 2026 Product App
-      </p>
-
-
-
-
-    </div>
-    </div>
-
- )
- }
-
-
-
-
-
-
-
+    </main>
+  )
+}
 

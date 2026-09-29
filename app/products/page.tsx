@@ -119,109 +119,112 @@ export default function ProductsPage() {
 
 }, [dispatch,currentPage])
 
-  return (
-<div className="min-h-screen bg-[#E8D5B5]">
-              <Header />
 
-      <main className="max-w-7xl mx-auto px-6 py-10">
+return (
+  <div className="min-h-screen bg-[#F7FAF8]">
 
-        {/* Heading + Add Product */}
-        <div className="flex flex-col items-center justify-center mb-10">
+    <Header />
 
-          <h1 className="text-4xl font-bold text-white mb-5">
-            Products
-          </h1>
+    <main className="max-w-7xl mx-auto px-6 py-10">
 
-          {role ==="seller" &&(
-            <Link
-          href="/products/add"
-          className="bg-[#6B4F3A] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#543C2C] transition"
-        >
-          + Add Product
-        </Link>
-          )}
-        
+      {/* Heading + Add Product */}
+      <div className="flex flex-col items-center justify-center mb-10">
 
-        </div>
+        <h1 className="text-4xl font-bold text-[#1F2A24] mb-5">
+          Products
+        </h1>
 
-        {/* Loading */}
-        {loading && (
-          <p className="text-white text-center text-lg">
+        {role === "seller" && (
+          <Link
+            href="/products/add"
+            className="bg-[#2F6B4F] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#24553E] transition shadow-sm"
+          >
+            + Add Product
+          </Link>
+        )}
+
+      </div>
+
+      {/* Loading */}
+      {loading && (
+        <div className="flex justify-center items-center py-16">
+          <p className="text-[#68736D] text-lg">
             Loading products...
           </p>
-        )}
+        </div>
+      )}
 
-        {/* No products */}
-        {!loading && products.length === 0 && (
-          <p className="text-white text-center text-lg">
-            No products found.
-          </p>
-        )}
+      {/* No products */}
+      {!loading && products.length === 0 && (
+        <div className="flex justify-center items-center py-16">
+          <div className="bg-white border border-[#E0EAE4] rounded-2xl px-8 py-10 text-center shadow-sm">
+            <p className="text-[#68736D] text-lg">
+              No products found.
+            </p>
+          </div>
+        </div>
+      )}
 
-              {/* Products */}
-        {!loading && products.length > 0 && (
-          <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {/* Products */}
+      {!loading && products.length > 0 && (
+        <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 
-            {products.map((product:ProductType) => (
-              <ProductCard
-                key={product._id}
-                product={product}
-                onDelete={handleDelete}
-              />
+          {products.map((product: ProductType) => (
+            <ProductCard
+              key={product._id}
+              product={product}
+              onDelete={handleDelete}
+            />
+          ))}
+
+        </div>
+      )}
+
+      {/* Pagination */}
+      {!loading && totalPages > 1 && (
+        <div className="w-full flex justify-center items-center mt-10">
+
+          <div className="flex items-center gap-2">
+
+            {/* Previous */}
+            <button
+              onClick={() => setCurrentPage((prev) => prev - 1)}
+              disabled={currentPage === 1}
+              className="px-4 py-2 rounded-lg bg-[#E8F2EC] text-[#2F6B4F] font-semibold border border-[#D5E1DA] hover:bg-[#DDEDE4] transition disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+
+            {/* Page Numbers */}
+            {Array.from({ length: totalPages }, (_, index) => (
+              <button
+                key={index + 1}
+                onClick={() => setCurrentPage(index + 1)}
+                className={`w-10 h-10 rounded-lg font-semibold transition ${
+                  currentPage === index + 1
+                    ? "bg-[#2F6B4F] text-white shadow-sm"
+                    : "bg-white text-[#2F6B4F] border border-[#D5E1DA] hover:bg-[#E8F2EC]"
+                }`}
+              >
+                {index + 1}
+              </button>
             ))}
 
+            {/* Next */}
+            <button
+              onClick={() => setCurrentPage((prev) => prev + 1)}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 rounded-lg bg-[#E8F2EC] text-[#2F6B4F] font-semibold border border-[#D5E1DA] hover:bg-[#DDEDE4] transition disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Pagination */}
-        {!loading && totalPages > 1 && (
-          <div className="w-full flex justify-center items-center mt-10">
-            <div className="flex items-center gap-2">
+    </main>
 
-              {/* Previous */}
-              <button
-                onClick={() => setCurrentPage((prev) => prev - 1)}
-                disabled={currentPage === 1}
-                className="px-4 py-2 rounded-lg bg-[#E8D8C3] text-[#6B4F3A] font-semibold disabled:opacity-40"
-              >
-                Previous
-              </button>
-
-              {/* Page Numbers */}
-              {Array.from({ length: totalPages }, (_, index) => (
-                <button
-                  key={index + 1}
-                  onClick={() => setCurrentPage(index + 1)}
-                  className={`w-10 h-10 rounded-lg font-semibold ${
-                    currentPage === index + 1
-                      ? "bg-[#6B4F3A] text-white"
-                      : "bg-[#E8D8C3] text-[#6B4F3A]"
-                  }`}
-                >
-                  {index + 1}
-                </button>
-              ))}
-
-              {/* Next */}
-              <button
-                onClick={() => setCurrentPage((prev) => prev + 1)}
-                disabled={currentPage === totalPages}
-                className="px-4 py-2 rounded-lg bg-[#E8D8C3] text-[#6B4F3A] font-semibold disabled:opacity-40"
-              >
-                Next
-              </button>
-
-            </div>
-          </div>
-        )}
-
-      </main>
-        
-
-    
-
-      
-    </div>
-  )
+  </div>
+)
 }
-
