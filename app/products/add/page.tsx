@@ -87,152 +87,155 @@ export default function AddProductPage() {
 }
   }
 
-  return (
-    <div className="min-h-screen bg-gray-100 px-4 py-10">
 
-      <div className="max-w-2xl mx-auto">
+return (
+  <div className="min-h-screen bg-[#F7FAF8] px-4 py-10">
 
-        <div className="bg-white rounded-2xl shadow-lg p-8">
+    <div className="max-w-2xl mx-auto">
 
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+      <div className="bg-white rounded-2xl border border-[#E0EAE4] shadow-[0_10px_40px_rgba(47,107,79,0.08)] p-7 md:p-9">
+
+        {/* Heading */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-semibold text-[#1F2A24] mb-2">
             Add Product
           </h1>
 
-          <p className="text-gray-500 mb-8">
+          <p className="text-[#68736D]">
             Add a new product to your store
           </p>
-
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            encType="multipart/form-data"
-            className="space-y-5"
-          >
-
-            {/* Title */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Product Title
-              </label>
-
-              <input
-                type="text"
-                {...register("title")}
-                placeholder="Enter product title"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-              />
-
-              {errors.title && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.title.message}
-                </p>
-              )}
-            </div>
-
-            {/* Price */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Price
-              </label>
-
-              <input
-                type="number"
-                {...register("price")}
-                placeholder="Enter price"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-              />
-
-              {errors.price && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.price.message}
-                </p>
-              )}
-            </div>
-
-            {/* Category */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Category
-              </label>
-
-              <input
-                type="text"
-                {...register("cateogary")}
-                placeholder="Enter category"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-              />
-
-              {errors.cateogary && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.cateogary.message}
-                </p>
-              )}
-            </div>
-
-            {/* Image */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Product Image
-              </label>
-
-              <input
-                type="file"
-                accept="image/png,image/jpeg,image/jpg"
-                {...register("image")}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3"
-              />
-
-              {errors.image && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.image.message}
-                </p>
-              )}
-            </div>
-
-            {/* Description */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description
-              </label>
-
-              <textarea
-                {...register("description")}
-                placeholder="Enter product description"
-                rows={5}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-              />
-
-              {errors.description && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.description.message}
-                </p>
-              )}
-            </div>
-
-            {/* Buttons */}
-            <div className="flex gap-4 pt-4">
-
-              <button
-                type="submit"
-                className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
-              >
-                Add Product
-              </button>
-
-              <button
-                type="button"
-                onClick={() => router.push("/products")}
-                className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
-              >
-                Cancel
-              </button>
-
-            </div>
-
-          </form>
         </div>
 
-      </div>
-    </div>
-  )
-}
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          encType="multipart/form-data"
+          className="space-y-5"
+        >
 
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-medium text-[#34443B] mb-2">
+              Product Title
+            </label>
+
+            <input
+              type="text"
+              {...register("title")}
+              placeholder="Enter product title"
+              className="w-full h-12 px-4 rounded-lg border border-[#D5E1DA] bg-[#FBFCFB] text-[#1F2A24] placeholder-[#9AA9A1] outline-none transition focus:border-[#2F6B4F] focus:ring-4 focus:ring-[#E8F2EC]"
+            />
+
+            {errors.title && (
+              <p className="text-red-500 text-xs mt-2">
+                {errors.title.message}
+              </p>
+            )}
+          </div>
+
+          {/* Price */}
+          <div>
+            <label className="block text-sm font-medium text-[#34443B] mb-2">
+              Price
+            </label>
+
+            <input
+              type="number"
+              {...register("price")}
+              placeholder="Enter price"
+              className="w-full h-12 px-4 rounded-lg border border-[#D5E1DA] bg-[#FBFCFB] text-[#1F2A24] placeholder-[#9AA9A1] outline-none transition focus:border-[#2F6B4F] focus:ring-4 focus:ring-[#E8F2EC]"
+            />
+
+            {errors.price && (
+              <p className="text-red-500 text-xs mt-2">
+                {errors.price.message}
+              </p>
+            )}
+          </div>
+
+          {/* Category */}
+          <div>
+            <label className="block text-sm font-medium text-[#34443B] mb-2">
+              Category
+            </label>
+
+            <input
+              type="text"
+              {...register("cateogary")}
+              placeholder="Enter category"
+              className="w-full h-12 px-4 rounded-lg border border-[#D5E1DA] bg-[#FBFCFB] text-[#1F2A24] placeholder-[#9AA9A1] outline-none transition focus:border-[#2F6B4F] focus:ring-4 focus:ring-[#E8F2EC]"
+            />
+
+            {errors.cateogary && (
+              <p className="text-red-500 text-xs mt-2">
+                {errors.cateogary.message}
+              </p>
+            )}
+          </div>
+
+          {/* Image */}
+          <div>
+            <label className="block text-sm font-medium text-[#34443B] mb-2">
+              Product Image
+            </label>
+
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/jpg"
+              {...register("image")}
+              className="w-full rounded-lg border border-[#D5E1DA] bg-[#FBFCFB] px-3 py-2 text-sm text-[#68736D] file:mr-4 file:rounded-md file:border-0 file:bg-[#E8F2EC] file:px-4 file:py-2 file:text-[#2F6B4F] file:font-medium hover:file:bg-[#DDEDE4]"
+            />
+
+            {errors.image && (
+              <p className="text-red-500 text-xs mt-2">
+                {errors.image.message}
+              </p>
+            )}
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-[#34443B] mb-2">
+              Description
+            </label>
+
+            <textarea
+              {...register("description")}
+              placeholder="Enter product description"
+              rows={5}
+              className="w-full px-4 py-3 rounded-lg border border-[#D5E1DA] bg-[#FBFCFB] text-[#1F2A24] placeholder-[#9AA9A1] outline-none transition focus:border-[#2F6B4F] focus:ring-4 focus:ring-[#E8F2EC] resize-none"
+            />
+
+            {errors.description && (
+              <p className="text-red-500 text-xs mt-2">
+                {errors.description.message}
+              </p>
+            )}
+          </div>
+
+          {/* Buttons */}
+          <div className="flex gap-4 pt-4">
+
+            <button
+              type="submit"
+              className="flex-1 bg-[#2F6B4F] text-white py-3 rounded-lg font-semibold hover:bg-[#24553E] active:scale-[0.99] transition duration-200 shadow-sm"
+            >
+              Add Product
+            </button>
+
+            <button
+              type="button"
+              onClick={() => router.push("/products")}
+              className="flex-1 bg-[#E8F2EC] text-[#2F6B4F] border border-[#D5E1DA] py-3 rounded-lg font-semibold hover:bg-[#DDEDE4] transition"
+            >
+              Cancel
+            </button>
+
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+)
+}
