@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as yup from "yup"
@@ -6,6 +5,7 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import { useForm } from "react-hook-form"
 import api from "@/lib/api"
 import Link from "next/link"
+import { useRouter } from "next/navigation";
 
 const schema = yup.object({
   firstName: yup
@@ -31,27 +31,32 @@ const schema = yup.object({
     .required("Role is required"),
 
   image: yup
-    .mixed<FileList>()
-    .required("Image is required"),
+  .mixed<FileList>()
+  .test(
+    "required",
+    "Image is required",
+    (value) => {
+      if (!value) return false;
+
+      return value.length > 0;
+    }
+  ),
 })
 
 type RegistrationForm = yup.InferType<typeof schema>
-
 export default function RegistrationPage() {
+  const router = useRouter();
 
   const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<RegistrationForm>({
-    resolver: yupResolver(schema),
-  })
-
+  register,
+  handleSubmit,
+  formState: { errors },
+} = useForm<RegistrationForm>({
+  resolver: yupResolver(schema),
+})
 
   const onSubmit = async (data: RegistrationForm) => {
-
     try {
-
       const formData = new FormData()
 
       formData.append("firstName", data.firstName)
@@ -59,19 +64,17 @@ export default function RegistrationPage() {
       formData.append("email", data.email)
       formData.append("password", data.password)
       formData.append("role", data.role)
-
       if (data.image && data.image.length > 0) {
         formData.append("image", data.image[0])
       }
-
-      const response = await api.post(
-        "/users/register",
-        formData
-      )
+            const response = await api.post("/users/register", formData)
 
       console.log("RESPONSE:", response.data)
 
       alert("Registration successful")
+      if(response.data){
+        router.push("/login")
+      }
 
     } catch (error: any) {
 
@@ -80,8 +83,7 @@ export default function RegistrationPage() {
       console.log("STATUS:", error.response?.status)
 
       alert(
-        error.response?.data?.message ||
-        "Registration failed"
+        error.response?.data?.message || "Registration failed"
       )
     }
   }

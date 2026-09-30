@@ -1,79 +1,69 @@
-
 "use client"
 
 import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { useForm } from "react-hook-form"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
 import api from "@/lib/api"
+import Link from "next/link"
 
-const loginschema = yup.object({
-  email: yup
-    .string()
-    .email("Enter a valid email")
-    .required("Email is required"),
 
-  password: yup
-    .string()
-    .required("Password is required"),
+
+
+const loginschema= yup.object({
+    email:yup.string().email("Enter a valid email").required("email is required"),
+    password:yup.string().required("password is required")
 })
 
-type LoginForm = yup.InferType<typeof loginschema>
-
+type LoginForm=yup.InferType<typeof loginschema>
 export default function LoginPage() {
 
-  const router = useRouter()
+        const router = useRouter()
+        const {
+            register,
+            handleSubmit,
+            formState:{errors},
+        }=useForm<LoginForm>({
+            resolver:yupResolver(loginschema),
+        })
+    
+ const onsubmit = async(data :LoginForm)=>{
+    try{
+        const response = await api.post("/users/login",data)
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginForm>({
-    resolver: yupResolver(loginschema),
-  })
+        const token = response.data.accestoken
+        const role = response.data.data.role
+
+        localStorage.setItem(
+          "user",
+          JSON.stringify(response.data.data)
+        )
+
+        localStorage.setItem("token", token)
+
+        await fetch("/api/auth/set-cookie", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            token: token,
+            role: role,
+          }),
+        })
+
+        router.push("/products")
 
 
-  const onsubmit = async (data: LoginForm) => {
-
-    try {
-
-      const response = await api.post("/users/login", data)
-
-      const token = response.data.accestoken
-      const role = response.data.data.role
-
-      localStorage.setItem(
-        "user",
-        JSON.stringify(response.data.data)
-      )
-
-      localStorage.setItem("token", token)
-
-      await fetch("/api/auth/set-cookie", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          token: token,
-          role: role,
-        }),
-      })
-
-      router.push("/products")
-
-    } catch (error: any) {
-
-      console.log("LOGIN ERROR:", error)
-      console.log("SERVER RESPONSE:", error.response?.data)
-
-      alert(
-        error.response?.data?.message ||
-        "Invalid email or password"
-      )
     }
-  }
+    catch(error:any){
+        console.log("LOGIN ERROR:", error)
+        console.log("SERVER RESPONSE:", error.response?.data)
+        alert(
+        error.response?.data?.message || "Invalid email or password"
+        )
+    }
+ }
 
 
   return (
